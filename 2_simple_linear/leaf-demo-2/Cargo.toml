@@ -1,0 +1,8 @@
+[package]
+name = "leaf-demo-2"
+version = "0.1.0"
+authors = ["Ashley Mannix <ashleymannix@live.com.au>"]
+
+[dependencies]
+collenchyma = { version = "*", default-features = false, features = [ "native", "cuda" ]}
+leaf = { version = "*", default-features = false, features = [ "cuda" ]}
