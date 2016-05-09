@@ -1,0 +1,1 @@
+sudo docker build -t kodraus/leaf-demo-2:latest . && sudo nvidia-docker run kodraus/leaf-demo-2:latest
