@@ -8,34 +8,34 @@ use leaf::layers::*;
 use co::prelude::*;
 
 fn main() {
-    let gpu = Rc::new(Backend::<Cuda>::default().unwrap());
-    let mut net_config = SequentialConfig::default();
+	let native = Backend::<Native>::default().unwrap();
+	let gpu = Rc::new(Backend::<Cuda>::default().unwrap());
+	let mut net_config = SequentialConfig::default();
 
-    let data = vec![1, 2, 3];
-    let data_len = data.len();
+	let data = vec![1, 2, 3];
 
-    net_config.add_input("data", &data);
+	net_config.add_input("data", &vec![1, 3]);
 
-    net_config.add_layer(LayerConfig::new("linear", 
-    	LinearConfig {
-    		output_size: data_len
-    	}
-    ));
+	net_config.add_layer(LayerConfig::new("linear", 
+		LinearConfig {
+			output_size: 1
+		}
+	));
 
-    let mut net = Layer::from_config(
-    	gpu.clone(), 
-    	&LayerConfig::new(
-    		"network", 
-    		LayerType::Sequential(net_config)
-    	)
-    );
+	let mut net = Layer::from_config(
+		gpu.clone(), 
+		&LayerConfig::new(
+			"network", 
+			LayerType::Sequential(net_config)
+		)
+	);
 
-    let gpu_data = SharedTensor::<f32>::new(
+	let mut shared_data = SharedTensor::<f32>::new(
 		gpu.device(), 
 		&data
 	).unwrap();
+	shared_data.add_device(native.device()).unwrap();
+	let data_lock = Arc::new(RwLock::new(shared_data));
 
-    let gpu_lock = Arc::new(RwLock::new(gpu_data));
-
-    net.forward(&[gpu_lock.clone()]);
+	net.forward(&[data_lock]);
 }
